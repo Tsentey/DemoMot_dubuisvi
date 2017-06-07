@@ -1,0 +1,121 @@
+'*****************************************
+'Nom : Dubuis Vncent
+'But : Création d'une page de plan horaire annuel automatiquement
+'*****************************************
+' Crée le : 02 juin 2017
+'*****************************************
+Sub ecritDeBase()
+
+'**********************************************************************
+'Variable :
+
+    '-----Création des variables
+    
+    'On récupère la valeur du premier jour de l'année
+    Dim valueFirstDayOfYear
+    'Tableau contennant les mois de l'années
+    Dim tabArrayMonth()
+    'Nombre de jour dans le mois
+    Dim daysInTheMonth
+    'Variable récupérant l'année à laquel commence le calendrier. Cela nous sert pour les années bisextiles.
+    
+    
+    'Je donne des valeur pour les variables.
+    tabArrayMonth = Array("Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre")
+    
+    'Je récupère la valeur du premier jour de l'année.
+        Range("G1").Select
+        ActiveCell.FormulaR1C1 = "=DATE(RC[-1],1,1)"
+        Range("H1").Select
+        ActiveCell.FormulaR1C1 = Range("G1").Value
+        Selection.NumberFormat = "General"
+        valueFirstDayOfYear = Range("H1").Value
+        Range("G1:H1").Select
+        Selection.ClearContents
+        Range("I1").Select
+        ActiveCell.FormulaR1C1 = valueFirstDayOfYear
+    
+    
+    
+'**********************************************************************
+    
+    'Boucle qui crée une feuille et la renomme par rapport à un mois.
+    For i = 0 To 11
+    
+        '----- Création  des feuilles.
+    
+        'Création d'une feuille
+        Sheets.Add After:=ActiveSheet
+        'Le nom de la feuille est déterminé par la valeur de la variable "month" qui change à chaque boucle.
+        ActiveSheet.Name = tabArrayMonth(i)
+    
+        '------ Inscription des données non-dynamique dans la feuille.
+    
+        'Le nom devra être dynamique quand ce sera à l'admin d'entrer le nom dans son Excel. Je récupérerai l'info dans une cellule
+        Range("A1").Select
+        ActiveCell.FormulaR1C1 = "Dubuis Vincent"
+        
+        Range("C2").Select
+        ActiveCell.FormulaR1C1 = "Début matin"
+        Range("D2").Select
+        ActiveCell.FormulaR1C1 = "Fin matin"
+        Range("E2").Select
+        ActiveCell.FormulaR1C1 = "Début après-midi"
+        Range("F2").Select
+        ActiveCell.FormulaR1C1 = "Fin après-midi"
+        Range("H2").Select
+        ActiveCell.FormulaR1C1 = "Nombre d'heures du jour"
+        Columns("A:I").Autofit
+        
+        
+        
+        '------ Inscription des dates
+        
+        'La colonne B est entièrement en format DATE. On y entrera les dates sous le format numérique.
+        
+        'Ex :   J'entre 40777 et cela me sortirait 22 août 2011. On a qu'à faire +1 à chaque retour
+        '       à la ligne et le nombre de retour à la ligne dépend du nombre de jour dans le mois.
+        Columns("B:B").Select
+        Selection.NumberFormat = "[$-x-sysdate]dddd, mmmm dd, yyyy"
+        
+    Select Case i
+        Case Is = 1 Or 3 Or 5 Or 7 Or 8 Or 10 Or 12
+        daysInTheMonth = 31
+        Case Is = 2
+        daysInTheMonth = 28
+        Case Else
+        daysInTheMonth = 30
+    
+    End Select
+        
+        If (daysInTheMonth = 27) Then
+            If (yearWhished Mod 4 = 0 And yearWished Mod 100 > 0) Then
+            daysInTheMonth = 28
+            Else
+            End If
+        End If
+        
+        For j = 0 To daysInTheMonth
+        
+        Range("B3").Select
+        ActiveCell.FormulaR1C1 = valueFirstDayOfYear
+        Cells(j + 3, 2) = valueFirstDayOfYear
+        valueFirstDayOfYear = valueFirstDayOfYear + 1
+        Next
+        Columns("B:B").Autofit
+        
+    
+    Next
+'**********************************************************************
+'Optionnel :
+        '
+        'actualDate = Date
+        'actualYear = Year(actualDate)
+        'Range("A2").Select
+        'ActiveCell.FormulaR1C1 = actualYear
+        'Range("A3").Select
+        'ActiveCell.FormulaR1C1 = Date
+        'Range("B2").Select
+        'ActiveCell.FormulaR1C1 = yearWished
+End Sub
+
