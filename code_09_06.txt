@@ -9,10 +9,12 @@ Sub ecritDeBase()
 '**********************************************************************
 'Variable :
 
+    '-----Création des constante
+    
     '-----Création des variables
     
     'On récupère la valeur du premier jour de l'année
-    Dim valueFirstDayOfYear
+    Dim valueDayOfYear
     'Tableau contennant les mois de l'années
     Dim tabArrayMonth()
     'Nombre de jour dans le mois
@@ -22,18 +24,17 @@ Sub ecritDeBase()
     
     'Je donne des valeur pour les variables.
     tabArrayMonth = Array("Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre")
-    
     'Je récupère la valeur du premier jour de l'année.
         Range("G1").Select
         ActiveCell.FormulaR1C1 = "=DATE(RC[-1],1,1)"
         Range("H1").Select
         ActiveCell.FormulaR1C1 = Range("G1").Value
         Selection.NumberFormat = "General"
-        valueFirstDayOfYear = Range("H1").Value
+        valueDayOfYear = Range("H1").Value
         Range("G1:H1").Select
         Selection.ClearContents
         Range("I1").Select
-        ActiveCell.FormulaR1C1 = valueFirstDayOfYear
+        ActiveCell.FormulaR1C1 = valueDayOfYear
     
     
     
@@ -51,7 +52,7 @@ Sub ecritDeBase()
     
         '------ Inscription des données non-dynamique dans la feuille.
     
-        'Le nom devra être dynamique quand ce sera à l'admin d'entrer le nom dans son Excel. Je récupérerai l'info dans une cellule
+        'Le nom devra être dynamique quand ce sera à l'admin d'entrer le nom dans son Excel. Je récupérerai l'info dans une cellule.
         Range("A1").Select
         ActiveCell.FormulaR1C1 = "Dubuis Vincent"
         
@@ -75,33 +76,69 @@ Sub ecritDeBase()
         
         'Ex :   J'entre 40777 et cela me sortirait 22 août 2011. On a qu'à faire +1 à chaque retour
         '       à la ligne et le nombre de retour à la ligne dépend du nombre de jour dans le mois.
+        
+        
         Columns("B:B").Select
+        'Je change le format en date mais plus précisement avec le jour de la semaine en plus.
         Selection.NumberFormat = "[$-x-sysdate]dddd, mmmm dd, yyyy"
         
-    Select Case i
-        Case Is = 1 Or 3 Or 5 Or 7 Or 8 Or 10 Or 12
-        daysInTheMonth = 31
-        Case Is = 2
-        daysInTheMonth = 28
-        Case Else
-        daysInTheMonth = 30
+        '-
+        'Cela ne marche pas
+        
+    'Select Case i
+        ' Case Is = 0
+        ' daysInTheMonth = 30
+        ' Case Is = 2
+        ' daysInTheMonth = 30
+        ' Case Is = 4
+        ' daysInTheMonth = 30
+        ' Case Is = 6
+        ' daysInTheMonth = 30
+        ' Case Is = 7
+        ' daysInTheMonth = 30
+        ' Case Is = 9
+        ' daysInTheMonth = 30
+        ' Case Is = 11
+        ' daysInTheMonth = 30
+        ' Case Is = 1
+        ' daysInTheMonth = 27
+        ' Case Else
+        ' daysInTheMonth = 29
     
-    End Select
+    ' End Select
         
-        If (daysInTheMonth = 27) Then
-            If (yearWhished Mod 4 = 0 And yearWished Mod 100 > 0) Then
-            daysInTheMonth = 28
-            Else
-            End If
-        End If
+      '  If (daysInTheMonth = 27) Then
+      '      If (yearWhished Mod 4 = 0 And yearWished Mod 100 > 0) Then
+      '      daysInTheMonth = 28
+      '      Else
+      '      End If
+    ' End If
+        '-
         
-        For j = 0 To daysInTheMonth
-        
+        'On note la première date du mois.
         Range("B3").Select
-        ActiveCell.FormulaR1C1 = valueFirstDayOfYear
-        Cells(j + 3, 2) = valueFirstDayOfYear
-        valueFirstDayOfYear = valueFirstDayOfYear + 1
+        ActiveCell.FormulaR1C1 = valueDayOfYear
+        
+        'Dès qu'on sait la date, on sait également le mois et l'année. Je note une formule qui m'indique
+        'le jour dans le mois (années bissextiles comprises)
+        Range("A2").Select
+        'Formule
+        ActiveCell.FormulaR1C1 = "=DAY(DATE(YEAR(R[1]C[1]),MONTH(R[1]C[1])+1,1)-1)"
+        'Je récupère la valeur pour la boucle qui va suivre, nous aurons la valeur du nombre de jours..
+        daysInTheMonth = Range("A2").Value
+        'J'efface la formule, mais conserve la valeur.
+        Selection.ClearContents
+        
+        'Cette boucle fait inscrire les dates dans la colonne selon le nombre de jours dans le mois qu'on a récupérer juste avant.
+        
+        For j = 1 To daysInTheMonth
+        'On note la valeur de la date dans une cellule donnée en fonction de j dans la colonne B
+        Cells(j + 3, 2) = valueDayOfYear
+        'Jour suivant
+        valueDayOfYear = valueDayOfYear + 1
         Next
+        
+        'On redimensionne la colonne B, car sinon les dates apparaissent comme cela : ########
         Columns("B:B").Autofit
         
     
